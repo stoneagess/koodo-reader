@@ -171,7 +171,7 @@
   padding: 10px;
   top: 110px;
   font-size: 15px;
-  height: calc(100vh - 170px);
+  height: calc(100vh - 120px);
   overflow-y: scroll;
   width: calc(100% - 20px);
 }

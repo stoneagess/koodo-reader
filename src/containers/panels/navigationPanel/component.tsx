@@ -81,104 +81,52 @@ class NavigationPanel extends React.Component<
         </div>
       );
     }
-    return this.state.searchList
-      .slice(
-        this.state.currentIndex * 10,
-        this.state.currentIndex * 10 + 10 > this.state.searchList.length
-          ? this.state.searchList.length
-          : this.state.currentIndex * 10 + 10
-      )
-      .map((item: any) => {
-        return (
-          <li
-            className="nav-search-list-item"
-            key={item.text}
-            onClick={async () => {
-              let bookLocation = JSON.parse(item.cfi) || {};
-              await this.props.htmlBook.rendition.goToPosition(
-                JSON.stringify({
-                  text: bookLocation.text,
-                  chapterTitle: bookLocation.chapterTitle,
-                  chapterDocIndex: bookLocation.chapterDocIndex,
-                  chapterHref: bookLocation.chapterHref,
-                  count: bookLocation.hasOwnProperty("cfi")
-                    ? "ignore"
-                    : bookLocation.count,
-                  percentage: bookLocation.percentage,
-                  cfi: bookLocation.cfi,
-                  page: bookLocation.page,
-                })
-              );
-              let style = "background: #f3a6a68c;";
-              this.props.htmlBook.rendition.highlightSearchNode(
-                bookLocation.keyword,
-                style
-              );
+    return this.state.searchList.map((item: any, index: number) => {
+      let bookLocation = JSON.parse(item.cfi) || {};
+      return (
+        <li
+          className="nav-search-list-item"
+          key={item.text}
+          onClick={async () => {
+            await this.props.htmlBook.rendition.goToPosition(
+              JSON.stringify({
+                text: bookLocation.text,
+                chapterTitle: bookLocation.chapterTitle,
+                chapterDocIndex: bookLocation.chapterDocIndex,
+                chapterHref: bookLocation.chapterHref,
+                count: bookLocation.hasOwnProperty("cfi")
+                  ? "ignore"
+                  : bookLocation.count,
+                percentage: bookLocation.percentage,
+                cfi: bookLocation.cfi,
+                page: bookLocation.page,
+              })
+            );
+            let style = "background: #f3a6a68c;";
+            this.props.htmlBook.rendition.highlightSearchNode(
+              bookLocation.keyword,
+              style
+            );
+          }}
+        >
+          <span style={{ marginRight: "5px", opacity: 0.6 }}>
+            {index + 1}.
+          </span>
+          {Parser(DOMPurify.sanitize(item.excerpt))}
+          <span
+            style={{
+              fontSize: "12px",
+              opacity: 0.6,
+              marginLeft: "10px",
             }}
           >
-            {Parser(DOMPurify.sanitize(item.excerpt))}
-          </li>
-        );
-      });
+            {bookLocation.chapterTitle}
+          </span>
+        </li>
+      );
+    });
   };
-  renderSearchPage = () => {
-    let startIndex = this.state.startIndex;
-    let currentIndex =
-      startIndex > 0 ? startIndex + 2 : this.state.currentIndex;
-    let pageList: any[] = [];
-    let total = Math.ceil(this.state.searchList.length / 10);
-    if (total <= 5) {
-      for (let i = 0; i < total; i++) {
-        pageList.push(
-          <li
-            className={
-              currentIndex === i
-                ? "nav-search-page-item active-page "
-                : "nav-search-page-item"
-            }
-            onClick={() => {
-              this.setState({ currentIndex: i });
-            }}
-          >
-            {i + 1}
-          </li>
-        );
-      }
-    } else {
-      for (
-        let i = 0;
-        i < (total - startIndex < 5 ? total - startIndex : 5);
-        i++
-      ) {
-        let isShow = currentIndex > 2 ? i === 2 : currentIndex === i;
-        pageList.push(
-          <li
-            className={
-              isShow
-                ? "nav-search-page-item active-page "
-                : "nav-search-page-item"
-            }
-            onClick={() => {
-              if (i === 3 && startIndex === 0) {
-                this.setState({
-                  startIndex: 1,
-                  currentIndex: 3,
-                });
-                return;
-              }
-              this.setState({
-                startIndex: currentIndex > 2 ? i + startIndex - 2 : 0,
-                currentIndex: i + startIndex,
-              });
-            }}
-          >
-            {i + startIndex + 1}
-          </li>
-        );
-      }
-    }
-    return pageList;
-  };
+
   render() {
     const searchProps = {
       mode: this.state.searchState ? "" : "nav",
@@ -236,9 +184,6 @@ class NavigationPanel extends React.Component<
               ) : this.state.searchList ? (
                 this.renderSearchList()
               ) : null}
-            </ul>
-            <ul className="nav-search-page">
-              {this.state.searchList ? this.renderSearchPage() : null}
             </ul>
           </>
         ) : (
