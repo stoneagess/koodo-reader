@@ -10,6 +10,7 @@ const {
   protocol,
   screen,
 } = require("electron");
+require("@electron/remote/main").initialize();
 const path = require("path");
 const isDev = require("electron-is-dev");
 const Store = require("electron-store");
@@ -192,6 +193,7 @@ const createMainWin = () => {
   if (store.get("isAutoMaximizeWin") === "yes") {
     mainWin.maximize();
   }
+  require("@electron/remote/main").enable(mainWin.webContents);
 
   if (!isDev) {
     Menu.setApplicationMenu(null);
@@ -341,6 +343,7 @@ const createMainWin = () => {
         readerWindow.setAlwaysOnTop(true);
       }
       readerWindow.loadURL(url);
+      require("@electron/remote/main").enable(readerWindow.webContents);
       readerWindow.maximize();
     } else {
       if (readerWindow) {
@@ -364,6 +367,7 @@ const createMainWin = () => {
         transparent: isMergeWord === "yes" ? true : false,
       });
       readerWindow.loadURL(url);
+      require("@electron/remote/main").enable(readerWindow.webContents);
       // readerWindow.webContents.openDevTools();
     }
     if (store.get("isAlwaysOnTop") === "yes") {
@@ -1012,23 +1016,39 @@ app.on("second-instance", (event, commandLine) => {
 });
 const originalConsoleLog = console.log;
 console.log = function (...args) {
-  originalConsoleLog(...args); // 保留原日志
-  log.info(args.join(" ")); // 写入日志文件
+  try {
+    originalConsoleLog(...args);
+  } catch (e) {}
+  if (log && log.info) {
+    log.info(args.join(" "));
+  }
 };
 const originalConsoleError = console.error;
 console.error = function (...args) {
-  originalConsoleError(...args); // 保留原错误日志
-  log.error(args.join(" ")); // 写入错误日志文件
+  try {
+    originalConsoleError(...args);
+  } catch (e) {}
+  if (log && log.error) {
+    log.error(args.join(" "));
+  }
 };
 const originalConsoleWarn = console.warn;
 console.warn = function (...args) {
-  originalConsoleWarn(...args); // 保留原警告日志
-  log.warn(args.join(" ")); // 写入警告日志文件
+  try {
+    originalConsoleWarn(...args);
+  } catch (e) {}
+  if (log && log.warn) {
+    log.warn(args.join(" "));
+  }
 };
 const originalConsoleInfo = console.info;
 console.info = function (...args) {
-  originalConsoleInfo(...args); // 保留原信息日志
-  log.info(args.join(" ")); // 写入信息日志文件
+  try {
+    originalConsoleInfo(...args);
+  } catch (e) {}
+  if (log && log.info) {
+    log.info(args.join(" "));
+  }
 };
 // Handle MacOS deep linking
 app.on("open-url", (event, url) => {
