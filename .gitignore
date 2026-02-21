@@ -12,6 +12,7 @@
 #/build
 
 dist/
+release/
 
 /build/*
 /.vscode
@@ -36,3 +37,13 @@ kookit-extra.js
 kookit-extra.mjs
 kookit-extra-browser.js
 kookit-extra-browser.mjs
+
+# Temporary build files
+build-portable*.js
+verify-deps.js
+test-replace-feature.*
+nul
+TEST_GUIDE.md
+
+# Demo files
+demo/

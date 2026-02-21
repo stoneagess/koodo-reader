@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results Demo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Simulation Container */
+        .sidebar-container {
+            width: 300px;
+            height: 600px; /* Simulate window height */
+            background-color: white;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        /* searchBox.css */
+        .header-search-box {
+            width: calc(100% - 20px);
+            height: 39px;
+            border-radius: 22px;
+            border: 1px solid #ddd; /* Added border for visibility */
+            outline: none;
+            font-size: 15px;
+            padding: 0px;
+            padding-left: 20px;
+            background-color: #f7f7f7;
+        }
+        .header-search-box::placeholder {
+            font-size: 15px;
+            line-height: 39px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            width: calc(100% - 40px);
+            color: #999;
+        }
+        .header-search-icon {
+            font-size: 22px;
+            display: inline-block;
+            opacity: 0.6;
+            cursor: pointer;
+        }
+        .header-search-text {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            font-size: 15px;
+            display: inline-block;
+            width: 40px;
+            height: 100%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* navigationPanel.css (Selected styles) */
+        .navigation-panel {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 299px;
+            height: 100%;
+            opacity: 1;
+            z-index: 10;
+        }
+        .nav-close-icon {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            font-size: 20px;
+            transition: 0.1s;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .navigation-search-title {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: calc(100% - 44px);
+            height: 38px;
+            font-size: 15px;
+            margin: 6px 22px;
+            font-weight: 500;
+        }
+        .navigation-search-box {
+            position: absolute;
+            left: 115px;
+            top: 90px;
+        }
+        
+        /* MODIFIED CSS for list */
+        .nav-search-list {
+            position: absolute;
+            padding: 10px;
+            top: 110px;
+            font-size: 15px;
+            height: calc(100% - 120px); /* Using 100% of container height instead of vh for demo */
+            overflow-y: scroll;
+            width: calc(100% - 20px);
+            margin: 0;
+            list-style: none;
+        }
+
+        .nav-search-list-item {
+            padding: 8px;
+            cursor: pointer;
+            word-break: break-all;
+            word-wrap: break-word;
+            border-bottom: 1px solid #eee;
+        }
+        .nav-search-list-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .content-search-text {
+            color: red !important;
+            font-weight: 600 !important;
+        }
+        
+        /* Custom scrollbar simulation */
+        .nav-search-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .nav-search-list::-webkit-scrollbar-thumb {
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 3px;
+        }
+
+        /* Mock Icons */
+        .icon-close::before { content: "✕"; }
+        .icon-search::before { content: "🔍"; }
+        
+        .header-search-container {
+            /* Implicit structure based on usage */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-container">
+        <div class="navigation-panel">
+            
+            <!-- Close Icon -->
+            <div class="nav-close-icon">
+                <span class="icon-close theme-color-delete"></span>
+            </div>
+
+            <!-- Header -->
+            <div class="header-search-container">
+                <div class="navigation-search-title" style="height: 20px; margin: 0px 25px 13px;">
+                    Search in the Book
+                </div>
+                
+                <!-- SearchBox Component -->
+                <div style="position: relative; margin: 0 10px;">
+                    <input type="text" class="header-search-box" placeholder="Search in the Book" value="Alice">
+                    <span class="header-search-text">
+                        <span class="icon-search header-search-icon"></span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Search Results List -->
+            <ul class="nav-search-list">
+                <!-- Item 1 -->
+                <li class="nav-search-list-item">
+                    <span style="margin-right: 5px; opacity: 0.6;">1.</span>
+                    ...she found herself in a long, low hall, which was lit up by a row of lamps hanging from the roof. There were doors all round the hall, but they were all locked; and when <span class="content-search-text">Alice</span> had been all the way down one side and up the other...
+                    <span style="font-size: 12px; opacity: 0.6; margin-left: 10px;">Chapter 1. Down the Rabbit-Hole</span>
+                </li>
+
+                <!-- Item 2 -->
+                <li class="nav-search-list-item">
+                    <span style="margin-right: 5px; opacity: 0.6;">2.</span>
+                    ...trying to find some way of being settled, and had just begun to think that very few things indeed were really impossible. There seemed to be no use in waiting by the little door, so <span class="content-search-text">Alice</span> went back to the table...
+                    <span style="font-size: 12px; opacity: 0.6; margin-left: 10px;">Chapter 1. Down the Rabbit-Hole</span>
+                </li>
+
+                <!-- Item 3 -->
+                <li class="nav-search-list-item">
+                    <span style="margin-right: 5px; opacity: 0.6;">3.</span>
+                    "Curiouser and curiouser!" cried <span class="content-search-text">Alice</span> (she was so much surprised, that for the moment she quite forgot how to speak good English); "now I'm opening out like the largest telescope that ever was! Good-bye, feet!"
+                    <span style="font-size: 12px; opacity: 0.6; margin-left: 10px;">Chapter 2. The Pool of Tears</span>
+                </li>
+
+                <!-- Item 4 -->
+                <li class="nav-search-list-item">
+                    <span style="margin-right: 5px; opacity: 0.6;">4.</span>
+                    ...she went on. "I must be Mabel after all, and I shall have to go and live in that poky little house, and have next to no toys to play with, and oh! ever so many lessons to learn! No, I've made up my mind about it; if I'm Mabel, I'll stay down here! It'll be no use their putting their heads down and saying 'Come up again, dear!' I shall only look up and say 'Who am I then? Tell me that first, and then, if I like being that person, I'll come up: if not, I'll stay down here till I'm somebody else'—but, oh dear!" cried <span class="content-search-text">Alice</span>, with a sudden burst of tears, "I do wish they would put their heads down! I am so very tired of being all alone here!"
+                    <span style="font-size: 12px; opacity: 0.6; margin-left: 10px;">Chapter 2. The Pool of Tears</span>
+                </li>
+                
+                <!-- More items to demonstrate scrolling -->
+                <li class="nav-search-list-item">
+                    <span style="margin-right: 5px; opacity: 0.6;">5.</span>
+                    The rabbit-hole went straight on like a tunnel for some way, and then dipped suddenly down, so suddenly that <span class="content-search-text">Alice</span> had not a moment to think about stopping herself before she found herself falling down a very deep well.
+                    <span style="font-size: 12px; opacity: 0.6; margin-left: 10px;">Chapter 1. Down the Rabbit-Hole</span>
+                </li>
+                <li class="nav-search-list-item">
+                    <span style="margin-right: 5px; opacity: 0.6;">6.</span>
+                    Either the well was very deep, or she fell very slowly, for she had plenty of time as she went down to look about her and to wonder what was going to happen next. First, she tried to look down and make out what she was coming to, but it was too dark to see anything; then she looked at the sides of the well, and noticed that they were filled with cupboards and book-shelves; here and there she saw maps and pictures hung upon pegs.
+                    <span style="font-size: 12px; opacity: 0.6; margin-left: 10px;">Chapter 1. Down the Rabbit-Hole</span>
+                </li>
+                <li class="nav-search-list-item">
+                    <span style="margin-right: 5px; opacity: 0.6;">7.</span>
+                    Down, down, down. Would the fall never come to an end! "I wonder how many miles I've fallen by this time?" she said aloud. "I must be getting somewhere near the centre of the earth. Let me see: that would be four thousand miles down, I think—" (for, you see, <span class="content-search-text">Alice</span> had learnt several things of this sort in her lessons in the schoolroom, and though this was not a very good opportunity for showing off her knowledge, as there was no one to listen to her, still it was good practice to say it over)...
+                    <span style="font-size: 12px; opacity: 0.6; margin-left: 10px;">Chapter 1. Down the Rabbit-Hole</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+</body>
+</html>
