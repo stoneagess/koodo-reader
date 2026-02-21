@@ -633,6 +633,62 @@ const createMainWin = () => {
       await import("./src/assets/lib/kookit-extra.min.mjs");
     let { statement, statementType, executeType, dbName, data, storagePath } =
       config;
+
+    // --- PATCH: Handle replaceRules table schema ---
+    if (dbName === "replaceRules") {
+      // Define SQL statements for replaceRules
+      const statements = {
+        getAllStatement: "SELECT * FROM replaceRules",
+        saveStatement:
+          "INSERT OR REPLACE INTO replaceRules (key, bookKey, scope, rules, isEnabled, createTime, updateTime) VALUES (@key, @bookKey, @scope, @rules, @isEnabled, @createTime, @updateTime)",
+        updateStatement:
+          "UPDATE replaceRules SET bookKey=@bookKey, scope=@scope, rules=@rules, isEnabled=@isEnabled, updateTime=@updateTime WHERE key=@key",
+        deleteStatement: "DELETE FROM replaceRules WHERE key=?",
+        deleteAllStatement: "DELETE FROM replaceRules",
+        getStatement: "SELECT * FROM replaceRules WHERE key=?",
+        getKeysStatement: "SELECT key FROM replaceRules",
+        getByBookKeyStatement: "SELECT * FROM replaceRules WHERE bookKey=?",
+        getByBookKeysStatement: (keys) =>
+          `SELECT * FROM replaceRules WHERE bookKey IN (${keys
+            .map(() => "?")
+            .join(",")})`,
+        deleteByBookKeyStatement: "DELETE FROM replaceRules WHERE bookKey=?",
+      };
+
+      // 确保 createTableStatement 存在
+      if (!SqlStatement.sqlStatement["createTableStatement"]) {
+        SqlStatement.sqlStatement["createTableStatement"] = {};
+      }
+      if (!SqlStatement.sqlStatement["createTableStatement"]["replaceRules"]) {
+        SqlStatement.sqlStatement["createTableStatement"]["replaceRules"] =
+          "CREATE TABLE IF NOT EXISTS replaceRules (key TEXT PRIMARY KEY, bookKey TEXT, scope TEXT, rules TEXT, isEnabled INTEGER, createTime INTEGER, updateTime INTEGER)";
+      }
+
+      // 正确地将语句分配到各自的类型下
+      // 结构应该是 SqlStatement.sqlStatement[statementType][dbName]
+      Object.keys(statements).forEach((statementType) => {
+        if (!SqlStatement.sqlStatement[statementType]) {
+          SqlStatement.sqlStatement[statementType] = {};
+        }
+        SqlStatement.sqlStatement[statementType]["replaceRules"] = statements[statementType];
+      });
+
+      // Define serialization helpers
+      if (!SqlStatement.jsonToSqlite["replaceRules"]) {
+        SqlStatement.jsonToSqlite["replaceRules"] = (data) => ({
+          ...data,
+          isEnabled: data.isEnabled ? 1 : 0,
+        });
+      }
+      if (!SqlStatement.sqliteToJson["replaceRules"]) {
+        SqlStatement.sqliteToJson["replaceRules"] = (item) => ({
+          ...item,
+          isEnabled: item.isEnabled === 1,
+        });
+      }
+    }
+    // --- END PATCH ---
+
     let db = getDBConnection(dbName, storagePath, SqlStatement.sqlStatement);
     let sql = "";
     if (statementType === "string") {

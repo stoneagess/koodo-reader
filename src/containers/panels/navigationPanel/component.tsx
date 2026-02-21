@@ -2,6 +2,7 @@ import React from "react";
 import "./navigationPanel.css";
 import ContentList from "../../lists/contentList";
 import BookNavList from "../../lists/navList";
+import ReplaceList from "../../lists/replaceList";
 import { Trans } from "react-i18next";
 import { NavigationPanelProps, NavigationPanelState } from "./interface";
 import SearchBox from "../../../components/searchBox";
@@ -279,12 +280,27 @@ class NavigationPanel extends React.Component<
                 >
                   <Trans>Highlight</Trans>
                 </span>
+                <span
+                  className="book-bookmark-title"
+                  style={
+                    this.state.currentTab === "replace"
+                      ? {}
+                      : { opacity: 0.5 }
+                  }
+                  onClick={() => {
+                    this.handleChangeTab("replace");
+                  }}
+                >
+                  <Trans>Replace</Trans>
+                </span>
               </div>
             </div>
             <div className="navigation-body-parent">
               <div className="navigation-body">
                 {this.state.currentTab === "contents" ? (
                   <ContentList />
+                ) : this.state.currentTab === "replace" ? (
+                  <ReplaceList />
                 ) : (
                   <BookNavList {...{ currentTab: this.state.currentTab }} />
                 )}

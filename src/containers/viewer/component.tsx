@@ -29,6 +29,8 @@ import PopupRefer from "../../components/popups/popupRefer";
 import { ocrTesseractLangList } from "../../constants/dropdownList";
 import DatabaseService from "../../utils/storage/databaseService";
 import { getOcrResult } from "../../utils/request/reader";
+import ReplaceRule from "../../models/ReplaceRule";
+import ReplaceUtil from "../../utils/reader/replaceUtil";
 declare var window: any;
 let lock = false; //prevent from clicking too fasts
 
@@ -187,6 +189,94 @@ class Viewer extends React.Component<ViewerProps, ViewerState> {
     this.props.handleMenuMode("note");
     this.props.handleOpenMenu(true);
   };
+
+  // 加载替换规则
+  loadReplaceRules = async (bookKey: string) => {
+    try {
+      const allRules: ReplaceRule[] = await DatabaseService.getAllRecords(
+        "replaceRules"
+      );
+
+      // 加载全局规则
+      const globalRules = allRules.filter(
+        (r: ReplaceRule) => r.scope === "all" && r.isEnabled
+      );
+
+      // 加载书籍专属规则
+      const bookRules = allRules.filter(
+        (r: ReplaceRule) =>
+          r.bookKey === bookKey && r.scope === "current" && r.isEnabled
+      );
+
+      // 合并规则（书籍规则优先级更高）
+      const mergedRules = [...globalRules, ...bookRules];
+
+      // 解析并返回
+      return ReplaceUtil.buildParsedRules(mergedRules);
+    } catch (error) {
+      console.error("Failed to load replace rules:", error);
+      return [];
+    }
+  };
+
+  // 应用替换规则到 DOM
+  applyReplaceRulesToDOM = (rules: any[]) => {
+    if (rules.length === 0) return;
+
+    try {
+      // 使用 getIframeDoc 获取所有文档（支持 PDF 双页模式等）
+      const docs = getIframeDoc(this.props.currentBook.format);
+      
+      for (const doc of docs) {
+        if (!doc) continue;
+
+        // 遍历所有文本节点并替换
+        const walk = (node: Node) => {
+          if (node.nodeType === 3) {
+            // 文本节点
+            let text = node.textContent || "";
+            const originalText = text;
+
+            // 应用所有规则
+            for (const rule of rules) {
+              try {
+                const escaped = rule.original.replace(
+                  /[.*+?^${}()|[\]\\]/g,
+                  "\\$&"
+                );
+                const regex = new RegExp(escaped, "g");
+                text = text.replace(regex, rule.replacement);
+              } catch (error) {
+                // 静默跳过错误规则
+                continue;
+              }
+            }
+
+            if (text !== originalText) {
+              node.textContent = text;
+            }
+          } else if (node.nodeType === 1) {
+            // 元素节点，递归处理子节点
+            const element = node as Element;
+            // 跳过 script 和 style 标签
+            if (
+              element.tagName !== "SCRIPT" &&
+              element.tagName !== "STYLE"
+            ) {
+              for (let i = 0; i < node.childNodes.length; i++) {
+                walk(node.childNodes[i]);
+              }
+            }
+          }
+        };
+
+        walk(doc.body);
+      }
+    } catch (error) {
+      console.error("Failed to apply replace rules:", error);
+    }
+  };
+
   handleRenderBook = async () => {
     if (lock) return;
     let { key, path, format, name } = this.props.currentBook;
@@ -393,6 +483,13 @@ class Viewer extends React.Component<ViewerProps, ViewerState> {
       });
       StyleUtil.addDefaultCss();
       // rendition.tranformText();
+
+      // 【新增】应用替换规则
+      const replaceRules = await this.loadReplaceRules(
+        this.props.currentBook.key
+      );
+      this.applyReplaceRulesToDOM(replaceRules);
+
       this.handleBindGesture();
       await this.handleHighlight(rendition);
       lock = true;
