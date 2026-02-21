@@ -42,18 +42,12 @@ class Redirect extends React.Component<RedirectProps, RedirectState> {
   };
   componentDidMount() {
     let url = document.location.href;
-    if (document.location.hash === "#/" && url.indexOf("code") === -1) {
-      this.props.history.push("/manager/home");
-    }
-    if (url.indexOf("error") > -1) {
-      this.setState({ isError: true });
-    }
     if (url.indexOf("import") > -1) {
       window.Kookit = Kookit;
       window.BookHelper = BookHelper;
     }
-    if (url.indexOf("code") > -1) {
-      let params: any = getParamsFromUrl();
+    let params: any = getParamsFromUrl();
+    if (params.code) {
       removeSearchParams();
       if (params.locationid) {
         params.code = params.code + "$" + params.locationid;
@@ -85,11 +79,11 @@ class Redirect extends React.Component<RedirectProps, RedirectState> {
           }
         }
       }
-    }
-    if (url.indexOf("access_token") > -1) {
-      let params: any = getParamsFromUrl();
+    } else if (params.access_token) {
       this.setState({ token: params.access_token });
       this.setState({ isAuthed: true });
+    } else if (document.location.hash === "#/") {
+      this.props.history.push("/manager/home");
     }
   }
 

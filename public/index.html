@@ -2,6 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <script>
+      if (typeof require !== 'undefined') {
+        try {
+          const electron = require('electron');
+          if (!electron.remote) {
+            electron.remote = require('@electron/remote');
+          }
+        } catch (e) {
+          console.error('Remote polyfill failed:', e);
+        }
+      }
+    </script>
     <link rel="icon" href="%PUBLIC_URL%/favicon.png" />
     <link rel="dns-prefetch" href="https://web.koodoreader.com" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
