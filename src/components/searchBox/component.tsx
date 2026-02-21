@@ -136,6 +136,37 @@ class SearchBox extends React.Component<SearchBoxProps, SearchBoxState> {
     }
 
     this.props.handleNavSearchState("pending");
+    
+    // Sort search results by book order (chapter index, then text position)
+    searchList.sort((a: any, b: any) => {
+      // First, sort by chapter index
+      const chapterDiff = (a.chapterDocIndex || 0) - (b.chapterDocIndex || 0);
+      if (chapterDiff !== 0) {
+        return chapterDiff;
+      }
+      
+      // If same chapter, try to sort by text position in excerpt
+      // Parse CFI to get more precise ordering if available
+      try {
+        const cfiA = JSON.parse(a.cfi);
+        const cfiB = JSON.parse(b.cfi);
+        
+        // If both have percentage, use that for ordering within chapter
+        if (cfiA.percentage !== undefined && cfiB.percentage !== undefined) {
+          return cfiA.percentage - cfiB.percentage;
+        }
+        
+        // If both have count, use that
+        if (cfiA.count !== undefined && cfiB.count !== undefined) {
+          return cfiA.count - cfiB.count;
+        }
+      } catch (e) {
+        // If CFI parsing fails, keep original order
+      }
+      
+      return 0;
+    });
+    
     this.props.handleSearchList(
       searchList.map((item: any) => {
         const regex = new RegExp(
