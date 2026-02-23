@@ -40,12 +40,59 @@ yarn ele
 # Build React app for production
 yarn build
 
-# Create Electron installer/package
+# Create Electron installer/package (完整安装包，需要 Visual Studio Build Tools)
 yarn release
 
 # Pre-build (runs before release automatically)
 yarn prerelease
 ```
+
+### 便携版打包（推荐方式）
+
+由于 Windows 环境下 `yarn release` 可能遇到以下问题：
+- Visual Studio Build Tools 版本不兼容
+- winCodeSign 工具的符号链接权限问题
+- better-sqlite3 原生模块编译失败
+
+**推荐使用以下命令生成便携版 ZIP 包：**
+
+```bash
+# 1. 清理旧构建
+rm -rf build dist
+
+# 2. 构建 React 应用
+yarn build
+
+# 3. 生成 ZIP 便携版（自动跳过代码签名）
+npx --no-install electron-builder --win zip --x64
+
+# 4. 手动创建额外的便携版 ZIP（可选）
+cd dist
+7z a -tzip "Koodo Reader-$(node -p "require('../package.json').version")-x64-Portable.zip" "./win-unpacked/*" -mx=5
+cd ..
+```
+
+**输出文件：**
+- `dist/Koodo Reader-{version}-x64-Win.zip` - electron-builder 生成的官方 ZIP 包
+- `dist/Koodo Reader-{version}-x64-Portable.zip` - 手动创建的便携版（可选）
+- `dist/win-unpacked/` - 未压缩的应用程序目录（可直接运行）
+
+**使用方式：**
+```bash
+# 解压并运行
+unzip "Koodo Reader-{version}-x64-Win.zip"
+cd "Koodo Reader-{version}-x64-Win"
+"Koodo Reader.exe"
+
+# 或直接运行未打包版本
+"dist/win-unpacked/Koodo Reader.exe"
+```
+
+**注意事项：**
+1. `package.json` 中已配置 `"signAndEditExecutable": false` 来禁用 Windows 代码签名
+2. better-sqlite3 原生模块会在打包时自动使用预编译的二进制文件
+3. 如遇到网络问题，electron-builder 会自动重试下载依赖
+4. ZIP 便携版无需安装，解压即可使用，适合开发测试和分发
 
 ### Testing
 ```bash

@@ -31,9 +31,19 @@
   width: 50px;
   float: right;
 }
+.book-item-list-added-time {
+  width: 110px;
+  float: right;
+}
+.book-item-list-size {
+  width: 90px;
+  float: right;
+}
 .book-item-list-subtitle,
 .book-item-list-author,
-.book-item-list-percentage {
+.book-item-list-percentage,
+.book-item-list-added-time,
+.book-item-list-size {
   height: 100%;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -46,7 +56,7 @@
   padding-left: 10px;
 }
 .book-item-list-subtitle {
-  width: calc(100% - 250px);
+  width: calc(100% - 450px);
   float: left;
 }
 .book-item-list-subtitle-text {
@@ -63,4 +73,26 @@
 .list-icon {
   margin: 15px 10px;
   font-size: 20px;
+}
+
+/* Responsive layout for narrow screens */
+@media (max-width: 1200px) {
+  /* Hide added time column on medium screens */
+  .book-item-list-added-time {
+    display: none;
+  }
+  .book-item-list-subtitle {
+    width: calc(100% - 340px); /* 450px - 110px (added-time) */
+  }
+}
+
+@media (max-width: 900px) {
+  /* Hide both added time and file size on small screens */
+  .book-item-list-added-time,
+  .book-item-list-size {
+    display: none;
+  }
+  .book-item-list-subtitle {
+    width: calc(100% - 250px); /* Back to original width */
+  }
 }

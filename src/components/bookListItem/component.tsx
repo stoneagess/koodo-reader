@@ -274,6 +274,18 @@ class BookListItem extends React.Component<BookItemProps, BookItemState> {
             <div className="book-item-list-author">
               <Trans>{this.props.book.author || "Unknown author"}</Trans>
             </div>
+            <div className="book-item-list-size">
+              {this.props.book.size
+                ? this.props.book.size / 1024 / 1024 > 1
+                  ? (this.props.book.size / 1024 / 1024).toFixed(1) + " MB"
+                  : (this.props.book.size / 1024).toFixed(0) + " KB"
+                : "0 KB"}
+            </div>
+            <div className="book-item-list-added-time">
+              {this.props.book.key && !this.props.book.key.startsWith("cache-")
+                ? new Date(parseInt(this.props.book.key)).toLocaleDateString()
+                : "N/A"}
+            </div>
           </p>
         </div>
         {this.props.isOpenActionDialog &&
